@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 
 function Register() {
   const [form, setForm] = useState({
-    name: '',
+    nombre: '',
     email: '',
     password: ''
   })
@@ -16,11 +16,31 @@ function Register() {
     })
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    console.log('Formulario de registro:', form)
-    // Aquí puedes hacer el fetch al backend cuando lo tengas listo
+  const handleSubmit = async (e) => {
+  e.preventDefault()
+
+  try {
+    const response = await fetch('http://localhost:3000/registro', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(form)
+    })
+
+    const data = await response.json()
+
+    if (response.ok) {
+      alert('Registro exitoso')
+    } else {
+      alert(data.message || 'Error al registrar usuario')
+    }
+  } catch (error) {
+    console.error('Error:', error)
+    alert('Ocurrió un error en el servidor')
   }
+}
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -32,10 +52,10 @@ function Register() {
 
         <input
           type="text"
-          name="name"
+          name="nombre"
           placeholder="Nombre"
           className="w-full mb-4 p-2 border border-gray-300 rounded"
-          value={form.name}
+          value={form.nombre}
           onChange={handleChange}
         />
         <input
