@@ -16,7 +16,7 @@ function Login() {
 
     try {
       // Hacemos la petición POST al backend con los datos que el usuario escribió
-      const response = await fetch('http://localhost:3000/login', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
         method: 'POST', // Método HTTP
         headers: {
           'Content-Type': 'application/json' // Tipo de contenido enviado

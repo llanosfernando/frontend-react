@@ -20,7 +20,7 @@ function Register() {
   e.preventDefault()
 
   try {
-    const response = await fetch('http://localhost:3000/registro', {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/registro`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -29,6 +29,8 @@ function Register() {
     })
 
     const data = await response.json()
+    console.log('Respuesta del backend:', data)
+    console.log('Estado de respuesta:', response.status)
 
     if (response.ok) {
       alert('Registro exitoso')
@@ -36,10 +38,11 @@ function Register() {
       alert(data.message || 'Error al registrar usuario')
     }
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Error en la petición:', error)
     alert('Ocurrió un error en el servidor')
   }
 }
+
 
 
   return (
