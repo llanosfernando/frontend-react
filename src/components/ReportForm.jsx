@@ -1,52 +1,55 @@
 import { useState } from "react"
-import OperatorForm from "./OperatorForm"
-import BusForm from "./BusForm"
+import OperatorForm from "../components/OperatorForm"
+import BusForm from "../components/BusForm"
 
 export default function ReportForm() {
-  const [type, setType] = useState("") // "Operador" o "Bus"
-  const [subType, setSubType] = useState("") // Si eligió "Bus", se elige aquí si es de operador o solo bus
+  const [tipoNovedad, setTipoNovedad] = useState("") // 'Operador' o 'Bus'
+  const [subTipo, setSubTipo] = useState("") // subcategoría: 'Operador' o 'Bus' dentro de 'Bus'
 
   return (
-    <div className="max-w-3xl mx-auto bg-white shadow-xl rounded-2xl p-6 space-y-6 animate-fade-in">
-      <h1 className="text-xl font-bold mb-4">Registrar Novedad</h1>
+    <div className="max-w-3xl mx-auto p-4 space-y-6">
+      <h1 className="text-2xl font-bold">Reporte de Novedades</h1>
 
-      {/* Desplegable principal */}
       <div>
-        <label className="block font-medium mb-1">Tipo de novedad</label>
+        <label className="block font-medium">Tipo de novedad</label>
         <select
-          className="w-full border border-gray-300 p-2 rounded"
-          value={type}
+          className="w-full border p-2 rounded"
+          value={tipoNovedad}
           onChange={(e) => {
-            setType(e.target.value)
-            setSubType("")
+            setTipoNovedad(e.target.value)
+            setSubTipo("") // limpiar subTipo al cambiar tipoNovedad
           }}
         >
-          <option value="">Selecciona una opción</option>
+          <option value="">Seleccionar</option>
           <option value="Operador">Operador</option>
           <option value="Bus">Bus</option>
         </select>
       </div>
 
-      {/* Si eligió "Bus", mostrar subdesplegable */}
-      {type === "Bus" && (
+      {/* Si se elige "Bus", aparece el segundo select */}
+      {tipoNovedad === "Bus" && (
         <div>
-          <label className="block font-medium mb-1">¿Novedad del operador o del bus?</label>
+          <label className="block font-medium">¿La novedad es sobre el bus o un operador relacionado?</label>
           <select
-            className="w-full border border-gray-300 p-2 rounded"
-            value={subType}
-            onChange={(e) => setSubType(e.target.value)}
+            className="w-full border p-2 rounded"
+            value={subTipo}
+            onChange={(e) => setSubTipo(e.target.value)}
           >
-            <option value="">Selecciona una opción</option>
-            <option value="Operador">Operador</option>
+            <option value="">Seleccionar</option>
             <option value="Bus">Bus</option>
+            <option value="Operador">Operador</option>
           </select>
         </div>
       )}
 
-      {/* Mostrar el formulario correcto según selección */}
-      {type === "Operador" && <OperatorForm />}
-      {type === "Bus" && subType === "Operador" && <OperatorForm />}
-      {type === "Bus" && subType === "Bus" && <BusForm />}
+      {/* Mostrar formulario adecuado */}
+      {(tipoNovedad === "Operador" || subTipo === "Operador") && (
+        <OperatorForm />
+      )}
+
+      {subTipo === "Bus" && (
+        <BusForm />
+      )}
     </div>
   )
 }

@@ -1,91 +1,86 @@
-import { useState } from "react"
-import OperatorInfo from "./OperatorInfo"
+import React, { useState } from "react";
 
-export default function OperatorForm() {
-  const [codigoOperador, setCodigoOperador] = useState("")
-  const [codigoBus, setCodigoBus] = useState("")
-  const [descripcion, setDescripcion] = useState("")
-  const [datosOperador, setDatosOperador] = useState(null)
+const ConsultaOperador = () => {
+  const [codigoOperador, setCodigoOperador] = useState("");
+  const [datosOperador, setDatosOperador] = useState(null);
+  const [error, setError] = useState("");
 
-  const consultarOperador = () => {
-    // 🔧 Más adelante se conectará al backend
-    // Simulación de datos
-    setDatosOperador({
-      foto: "https://via.placeholder.com/100",
-      nombre: "Luis Fernando",
-      apellido: "Pérez Llanos",
-      cedula: "123456789",
-      cargo: "Conductor"
-    })
-  }
+  const consultarOperador = async () => {
+    const codigo = codigoOperador.trim();
 
-  const enviarNovedad = () => {
-    // Acá más adelante conectas con el backend para guardar la novedad
-    console.log("🚀 Novedad enviada:")
-    console.log({
-      codigoOperador,
-      codigoBus,
-      descripcion
-    })
-    alert("✅ Novedad registrada exitosamente")
-    setCodigoOperador("")
-    setCodigoBus("")
-    setDescripcion("")
-    setDatosOperador(null)
-  }
+    if (!codigo) {
+      setError("⚠️ Debes ingresar un código de operador válido.");
+      setDatosOperador(null);
+      return;
+    }
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/operadores/${codigo}`);
+
+      if (!res.ok) {
+        throw new Error("Operador no encontrado");
+      }
+
+      const data = await res.json();
+
+      setDatosOperador({
+        foto: data.foto,
+        nombre: data.nombres,
+        apellido: data.apellidos,
+        cedula: data.cedula,
+        cargo: data.cargo,
+      });
+
+      setError(""); // Limpia el error si todo sale bien
+    } catch (error) {
+      setError("❌ No se encontró el operador.");
+      setDatosOperador(null);
+      console.error(error);
+    }
+  };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <label className="block font-medium">Código del operador</label>
-        <div className="flex space-x-2">
-          <input
-            type="text"
-            className="w-full border p-2 rounded"
-            value={codigoOperador}
-            onChange={(e) => setCodigoOperador(e.target.value)}
-          />
-          <button
-            className="bg-blue-600 text-white px-4 py-2 rounded"
-            onClick={consultarOperador}
-          >
-            Consultar
-          </button>
-        </div>
-      </div>
+    <div className="max-w-md mx-auto mt-6 p-4 bg-white rounded-xl shadow-md">
+      <h2 className="text-xl font-bold mb-4">Consultar Operador</h2>
+
+      <input
+  type="text"
+  placeholder="Código del operador"
+  className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
+  value={codigoOperador}
+  onChange={(e) => setCodigoOperador(e.target.value)}
+  onKeyDown={(e) => {
+    if (e.key === 'Enter') {
+      consultarOperador(); // Ejecuta la consulta cuando se presiona Enter
+    }
+  }}
+/>
+
+      
+
+      <button
+        onClick={consultarOperador}
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded-md"
+      >
+        Consultar
+      </button>
+
+      {error && <p className="text-red-500 mt-2">{error}</p>}
 
       {datosOperador && (
-        <>
-          <OperatorInfo datos={datosOperador} />
-
-          <div>
-            <label className="block font-medium">Código del bus</label>
-            <input
-              type="text"
-              className="w-full border p-2 rounded"
-              value={codigoBus}
-              onChange={(e) => setCodigoBus(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label className="block font-medium">Descripción de la novedad</label>
-            <textarea
-              className="w-full border p-2 rounded"
-              rows={4}
-              value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
-            ></textarea>
-          </div>
-
-          <button
-            className="bg-green-600 text-white px-6 py-2 rounded mt-2"
-            onClick={enviarNovedad}
-          >
-            Registrar Novedad
-          </button>
-        </>
+        <div className="mt-4 p-3 border rounded-md bg-gray-50">
+          <img
+            src={datosOperador.foto}
+            alt="Foto del operador"
+            className="w-24 h-24 rounded-full mx-auto mb-2 object-cover"
+          />
+          <p><strong>Nombre:</strong> {datosOperador.nombre} {datosOperador.apellido}</p>
+          <p><strong>Cédula:</strong> {datosOperador.cedula}</p>
+          <p><strong>Cargo:</strong> {datosOperador.cargo}</p>
+        </div>
       )}
     </div>
-  )
-}
+  );
+};
+
+export default ConsultaOperador;
