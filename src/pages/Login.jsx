@@ -32,6 +32,7 @@ function Login() {
       // Si la respuesta fue exitosa (status 200), mostramos mensaje y redireccionamos
       if (response.ok) {
         alert('Inicio de sesión exitoso')
+        localStorage.setItem('auth', 'true') // Guardamos el token o información del usuario si es necesario
         navigate('/home') // Redirige a la ruta "/home"
       } else {
         // Si hubo error (status 401, 404, etc.), mostramos el mensaje del servidor
@@ -44,6 +45,7 @@ function Login() {
       alert('Ocurrió un error en el servidor')
     }
   }
+  
 
   // JSX que renderiza el formulario de login
   return (
