@@ -5,7 +5,7 @@ import Home from './pages/Home.jsx'
 import Report from './pages/Reportes.jsx'
 import Inventory from './pages/Inventory.jsx'
 import Navbar from './components/Navbar.jsx'
-import PrivateRoute from './components/PrivateRoute.jsx'
+import PrivateRoute from './routes/PrivateRoute.jsx'
 
 function App() {
   const location = useLocation()

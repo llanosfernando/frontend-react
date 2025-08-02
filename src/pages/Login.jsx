@@ -31,9 +31,10 @@ function Login() {
 
       // Si la respuesta fue exitosa (status 200), mostramos mensaje y redireccionamos
       if (response.ok) {
+        localStorage.setItem('token', data.token) // Guardamos el token en localStorage
         alert('Inicio de sesión exitoso')
-        localStorage.setItem('auth', 'true') // Guardamos el token o información del usuario si es necesario
-        navigate('/home') // Redirige a la ruta "/home"
+      
+        navigate('/home', { replace: true }) // Redireccionamos a la página de inicio
       } else {
         // Si hubo error (status 401, 404, etc.), mostramos el mensaje del servidor
         alert(data.message || 'Error al iniciar sesión')
