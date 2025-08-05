@@ -1,6 +1,6 @@
-import { Navigate, Outlet } from 'react-router-dom'
-import { jwtDecode } from 'jwt-decode'
-import { getToken, clearToken } from '../utils/auth' // Asegúrate de tener estas funciones
+import { Navigate, Outlet } from 'react-router-dom'// Asegúrate de que react-router-dom esté instalado
+import { jwtDecode } from 'jwt-decode'// Asegúrate de que jwt-decode esté instalado
+import { getToken, clearToken } from '../api/auth' // Asegúrate de que estas funciones estén definidas en tu archivo auth.js
 
 const PrivateRoute = () => {
   const token = getToken()
