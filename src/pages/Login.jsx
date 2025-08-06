@@ -1,6 +1,7 @@
 // Importamos funciones necesarias de React Router y React
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import { login } from '../api/auth' // Importa la función login desde el API    
 
 function Login() {
   // Hook para redireccionar después del login
@@ -14,39 +15,15 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault() // Previene que la página se recargue
 
-    try {
-      // Hacemos la petición POST al backend con los datos que el usuario escribió
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
-        method: 'POST', // Método HTTP
-        headers: {
-          'Content-Type': 'application/json' // Tipo de contenido enviado
-        },
-        // Enviamos un JSON con las claves que espera el backend:
-        // correo y contraseña (aunque acá usamos email y password en el frontend)
-        body: JSON.stringify({ correo: email, contraseña: password })
-      })
+    const { ok, data, error } = await login(email, password)
 
-      // Convertimos la respuesta del backend en JSON
-      const data = await response.json()
-
-      // Si la respuesta fue exitosa (status 200), mostramos mensaje y redireccionamos
-      if (response.ok) {
-        localStorage.setItem('token', data.token) // Guardamos el token en localStorage
-        alert('Inicio de sesión exitoso')
-      
-        navigate('/home', { replace: true }) // Redireccionamos a la página de inicio
-      } else {
-        // Si hubo error (status 401, 404, etc.), mostramos el mensaje del servidor
-        alert(data.message || 'Error al iniciar sesión')
-      }
-
-    } catch (error) {
-      // Si algo salió mal con la conexión o el servidor
-      console.error('Error:', error)
-      alert('Ocurrió un error en el servidor')
+    if (ok) {
+      alert('Inicio de sesión exitoso')
+      navigate('/home', { replace: true }) // Redireccionamos a la página de inicio
+    } else {
+      alert(error || 'Error al iniciar sesión')
     }
   }
-  
 
   // JSX que renderiza el formulario de login
   return (

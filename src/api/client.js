@@ -1,23 +1,37 @@
-// src/api/inventario.js
-import { apiFetch } from "./client";
+// src/api/client.js
+import { getToken, clearToken } from './auth';
 
-// Listar inventario
-export const getInventario = () => apiFetch("/inventario", { method: "GET" });
+const API_URL = import.meta.env.VITE_API_URL;
 
-// Crear item
-export const createItem = (data) =>
-  apiFetch("/inventario", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+export async function apiFetch(endpoint, options = {}) {
+  const token = getToken();
 
-// Editar item
-export const updateItem = (id, data) =>
-  apiFetch(`/inventario/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+  };
 
-// Borrar item
-export const deleteItem = (id) =>
-  apiFetch(`/inventario/${id}`, { method: "DELETE" });
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+
+    if (res.status === 401 || res.status === 403) {
+      clearToken();
+      throw new Error('No autorizado. Inicia sesión de nuevo.');
+    }
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || data.mensaje || 'Error en la solicitud');
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error en apiFetch:', error);
+    throw error;
+  }
+}

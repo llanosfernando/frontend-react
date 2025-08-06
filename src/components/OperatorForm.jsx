@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { getOperador } from "../api/operadores"; // usamos la nueva API
 
 const ConsultaOperador = () => {
   const [codigoOperador, setCodigoOperador] = useState("");
@@ -15,13 +16,7 @@ const ConsultaOperador = () => {
     }
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/operadores/${codigo}`);
-
-      if (!res.ok) {
-        throw new Error("Operador no encontrado");
-      }
-
-      const data = await res.json();
+      const data = await getOperador(codigo);
 
       setDatosOperador({
         foto: data.foto,
@@ -44,19 +39,17 @@ const ConsultaOperador = () => {
       <h2 className="text-xl font-bold mb-4">Consultar Operador</h2>
 
       <input
-  type="text"
-  placeholder="Código del operador"
-  className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
-  value={codigoOperador}
-  onChange={(e) => setCodigoOperador(e.target.value)}
-  onKeyDown={(e) => {
-    if (e.key === 'Enter') {
-      consultarOperador(); // Ejecuta la consulta cuando se presiona Enter
-    }
-  }}
-/>
-
-      
+        type="text"
+        placeholder="Código del operador"
+        className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2"
+        value={codigoOperador}
+        onChange={(e) => setCodigoOperador(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            consultarOperador();
+          }
+        }}
+      />
 
       <button
         onClick={consultarOperador}
