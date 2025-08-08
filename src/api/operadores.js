@@ -1,5 +1,5 @@
-import * as client from './client';
+import { apiFetch } from './client';
 
 // Obtener un operador por código
 export const getOperador = (codigo) => 
-  client.apiFetch(`/operadores/${codigo}`, { method: 'GET' });
+  apiFetch(`/operadores/${codigo}`, { method: 'GET' });

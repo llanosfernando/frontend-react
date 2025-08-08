@@ -18,8 +18,6 @@ export const updateItem = (id, data) =>
     body: JSON.stringify(data),
   });
 
-  
-
 // Borrar item
 export const deleteItem = (id) =>
   apiFetch(`/inventario/${id}`, { method: "DELETE" });

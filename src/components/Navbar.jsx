@@ -1,23 +1,25 @@
 import { Link, useNavigate } from "react-router-dom";
+import { logout, getToken } from "../api/auth";
+import { jwtDecode } from "jwt-decode";
 
 function Navbar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("token"); // Quitamos el token
+    logout(); // Usa la función del módulo auth
     navigate("/"); // Redirigimos al login
   };
 
-  // Intentamos parsear el token
+  // Obtenemos datos del usuario de manera segura
   let userData = null;
   try {
-    const token = localStorage.getItem("token");
+    const token = getToken();
     if (token) {
-      const [, payload] = token.split(".");
-      userData = JSON.parse(atob(payload)); // Decodificamos JWT
+      userData = jwtDecode(token); // Usa jwt-decode consistentemente
     }
   } catch (err) {
-    console.error("Error al decodificar token:", err); // Manejo de errores
+    console.error("Error al decodificar token:", err);
+    logout(); // Limpia token corrupto
   }
 
   return (
