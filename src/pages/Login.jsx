@@ -1,7 +1,8 @@
 // Importamos funciones necesarias de React Router y React
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import { login } from '../api/auth' // Importa la función login desde el API    
+import { login } from '../api/auth'
+import toast from 'react-hot-toast'
 
 function Login() {
   // Hook para redireccionar después del login
@@ -13,15 +14,13 @@ function Login() {
 
   // Esta función se ejecuta cuando el usuario envía el formulario
   const handleSubmit = async (e) => {
-    e.preventDefault() // Previene que la página se recargue
-
-    const { ok, data, error } = await login(email, password)
-
+    e.preventDefault();
+    const { ok, data, error } = await login(email, password);
     if (ok) {
-      alert('Inicio de sesión exitoso')
-      navigate('/home', { replace: true }) // Redireccionamos a la página de inicio
+      toast.success('Inicio de sesión exitoso');
+      navigate('/home', { replace: true });
     } else {
-      alert(error || 'Error al iniciar sesión')
+      toast.error(error || 'Error al iniciar sesión');
     }
   }
 

@@ -7,9 +7,12 @@ export const setToken = (token) => localStorage.setItem('token', token);
 export const clearToken = () => localStorage.removeItem('token');
 
 // ====== AUTH REQUESTS ======
+
+
+// LOGIN
 export async function login(correo, contraseña) { 
   try {
-    const data = await apiFetch('/login', {
+    const data = await apiFetch('/auth/login', {
       method: 'POST',
       body: JSON.stringify({ correo, contraseña })
     });
@@ -33,9 +36,11 @@ export const logout = () => {
   clearToken();
 };
 
+
+// REGISTRO
 export const register = async (nombre, email, password) => {
   try {
-    const data = await apiFetch('/registro', {
+    const data = await apiFetch('/auth/registro', {
       method: 'POST',
       body: JSON.stringify({ nombre, email, password })
     });

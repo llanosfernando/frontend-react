@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { register } from '../api/auth'
+import toast from 'react-hot-toast'
 
 function Register() {
   const navigate = useNavigate()
@@ -37,25 +38,28 @@ function Register() {
 
   // Maneja el envío del formulario
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setSuccess('')
+    e.preventDefault();
+    setError("");
+    setSuccess("");
 
-    const validationError = validateForm()
+    const validationError = validateForm();
     if (validationError) {
-      setError(validationError)
-      return
+      setError(validationError);
+      toast.error(validationError);
+      return;
     }
 
-    setLoading(true)
-    const { ok, error } = await register(form.nombre, form.email, form.password)
-    setLoading(false)
+    setLoading(true);
+    const { ok, error } = await register(form.nombre, form.email, form.password);
+    setLoading(false);
 
     if (ok) {
-      setSuccess('✅ Registro exitoso. Redirigiendo al login...')
-      setTimeout(() => navigate('/'), 2000) // Redirige en 2 seg
+      setSuccess("✅ Registro exitoso. Redirigiendo al login...");
+      toast.success("Registro exitoso");
+      setTimeout(() => navigate('/'), 2000);
     } else {
-      setError(error || '❌ Error al registrarse')
+      setError(error || "❌ Error al registrarse");
+      toast.error(error || "Error al registrarse");
     }
   }
 
