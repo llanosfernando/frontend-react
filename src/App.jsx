@@ -7,13 +7,14 @@ import Inventory from './pages/Inventory.jsx';
 import Navbar from './components/Navbar.jsx';
 import PrivateRoute from './routes/PrivateRoute.jsx';
 import { Toaster } from 'react-hot-toast';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   const location = useLocation();
   const hideNavbar = location.pathname === '/' || location.pathname === '/register';
 
   return (
-    <>
+    <ErrorBoundary>
       <Toaster />
       {!hideNavbar && <Navbar />}
       <Routes>
@@ -26,7 +27,7 @@ function App() {
           <Route path="/inventory" element={<Inventory />} />
         </Route>
       </Routes>
-    </>
+    </ErrorBoundary>
   );
 }
 

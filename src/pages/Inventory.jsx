@@ -1,6 +1,5 @@
 // src/pages/Inventory.jsx
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import {
   getUsuarios,
   createUsuario,
@@ -11,14 +10,45 @@ import {
   updateOperador,
   deleteOperador,
 } from "../api/Inventory";
+import toast from "react-hot-toast";
+import { getToken } from "../api/auth";
+import { jwtDecode } from "jwt-decode";
+import { ChevronDown } from "lucide-react";
+import { updateUsuarioPassword } from "../api/Inventory";
+import UsuarioForm from "../components/UsuarioForm";
+import UsuarioTable from "../components/UsuarioTable";
+import PasswordForm from "../components/PasswordForm";
+import ViewSelector from "../components/ViewSelector";
+import UserRoleInfo from "../components/UserRoleInfo";
+import OperadorForm from "../components/OperadorForm";
+import OperadorTable from "../components/OperadorTable";
 
 export default function Inventory() {
   const [view, setView] = useState("usuarios");
   const [data, setData] = useState([]);
-  const [form, setForm] = useState({});
+  // El formulario maneja su propio estado, no se necesita 'form' ni 'setForm' aquí
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [userRole, setUserRole] = useState("");
+
+  // Nuevo estado para el formulario de contraseña
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [passwordUserId, setPasswordUserId] = useState(null);
+  const [newPassword, setNewPassword] = useState("");
+
+  // Obtener el rol del usuario al cargar el componente
+  useEffect(() => {
+    try {
+      const token = getToken();
+      if (token) {
+        const decoded = jwtDecode(token);
+        setUserRole(decoded.rol || "");
+      }
+    } catch (err) {
+      setUserRole("");
+    }
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -36,12 +66,24 @@ export default function Inventory() {
       setLoading(false);
     }
   };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  
+  // Handler para el envío del formulario (recibe los datos, no el evento)
+  const handleSubmit = async (form) => {
+    // Validación según la vista
     if (!form.nombre || form.nombre.trim() === "") {
       toast.error("El nombre es obligatorio");
       return;
+    }
+    if (view === "usuarios") {
+      if (form.email !== undefined && (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email))) {
+        toast.error("El correo es obligatorio y debe ser válido");
+        return;
+      }
+    } else if (view === "operadores") {
+      if (!form.codigo || form.codigo.trim() === "") {
+        toast.error("El código es obligatorio");
+        return;
+      }
     }
     setLoading(true);
     try {
@@ -52,7 +94,6 @@ export default function Inventory() {
         editingId ? await updateOperador(editingId, form) : await createOperador(form);
         toast.success(editingId ? "Operador actualizado" : "Operador creado");
       }
-      setForm({});
       setEditingId(null);
       fetchData();
     } catch (err) {
@@ -63,8 +104,7 @@ export default function Inventory() {
   };
 
   const handleEdit = (item) => {
-    setForm(item);
-    setEditingId(item.id);
+  setEditingId(item.id);
   };
 
   const handleDelete = async (id) => {
@@ -81,102 +121,105 @@ export default function Inventory() {
     }
   };
 
+  // Handler para mostrar el formulario de contraseña
+  const handleShowPasswordForm = (userId) => {
+    setPasswordUserId(userId);
+    setShowPasswordForm(true);
+    setNewPassword("");
+  };
+
+  // Handler para actualizar la contraseña
+  const handleUpdatePassword = async (e) => {
+    e.preventDefault();
+    console.log('Actualizando contraseña:', { id: passwordUserId, password: newPassword });
+    if (!newPassword || newPassword.length < 6) {
+      toast.error("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+    try {
+      const res = await updateUsuarioPassword(passwordUserId, newPassword);
+      console.log('Respuesta backend:', res);
+      toast.success("Contraseña actualizada");
+      setShowPasswordForm(false);
+      setPasswordUserId(null);
+      setNewPassword("");
+    } catch (err) {
+      toast.error("Error actualizando contraseña");
+      console.error('Error actualizando contraseña:', err);
+    }
+  };
+
+  // Handler para cambiar el rol de un usuario
+  const handleChangeRol = async (userId, newRol) => {
+    try {
+      const usuario = data.find(u => u.id === userId);
+      await updateUsuario(userId, { ...usuario, rol: newRol });
+      toast.success('Rol actualizado');
+      fetchData();
+    } catch (err) {
+      toast.error('Error actualizando rol');
+    }
+  };
+
+  // Renderiza la vista actual
   return (
     <div className="p-6">
+      {/* Mostrar el rol del usuario */}
+      <UserRoleInfo role={userRole} />
       <h1 className="text-3xl font-bold mb-4">📦 Inventory Manager</h1>
-
-      {/* Botones de vista */}
-      <div className="flex gap-4 mb-6">
-        <button
-          onClick={() => setView("usuarios")}
-          className={`px-4 py-2 rounded-lg font-medium transition ${
-            view === "usuarios" ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300"
-          }`}
-        >
-          Usuarios
-        </button>
-        <button
-          onClick={() => setView("operadores")}
-          className={`px-4 py-2 rounded-lg font-medium transition ${
-            view === "operadores" ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300"
-          }`}
-        >
-          Operadores
-        </button>
+      {/* Selector de vista */}
+      <div className="mb-6">
+        <ViewSelector value={view} onChange={e => setView(e.target.value)} />
       </div>
 
-      {/* Formulario */}
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow p-4 rounded-lg mb-6 flex flex-wrap gap-4"
-      >
-        {Object.keys(data[0] || { nombre: "" })
-          .filter((key) => key !== "id")
-          .map((key) => (
-            <input
-              key={key}
-              placeholder={key}
-              value={form[key] || ""}
-              onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-              className="border p-2 rounded-lg flex-1 min-w-[200px]"
-            />
-          ))}
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 disabled:opacity-50"
-        >
-          {editingId ? "Actualizar" : "Crear"}
-        </button>
-      </form>
+      {/* Botón para agregar nuevo usuario/operador */}
 
-      {/* Tabla */}
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse bg-white shadow rounded-lg overflow-hidden">
-          <thead className="bg-gray-100">
-            <tr>
-              {Object.keys(data[0] || { nombre: "" }).map((key) => (
-                <th key={key} className="p-3 border-b text-left font-semibold">
-                  {key}
-                </th>
-              ))}
-              <th className="p-3 border-b">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50">
-                {Object.keys(item).map((key) => (
-                  <td key={key} className="p-3 border-b">
-                    {item[key]}
-                  </td>
-                ))}
-                <td className="p-3 border-b flex gap-2">
-                  <button
-                    onClick={() => handleEdit(item)}
-                    className="bg-yellow-400 px-3 py-1 rounded-lg text-white hover:bg-yellow-500"
-                  >
-                    Editar
-                  </button>
-                  <button
-                    onClick={() => handleDelete(item.id)}
-                    className="bg-red-500 px-3 py-1 rounded-lg text-white hover:bg-red-600"
-                  >
-                    Eliminar
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {data.length === 0 && !loading && (
-              <tr>
-                <td colSpan="100%" className="p-4 text-center text-gray-500">
-                  No hay registros
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      {/* Formulario de usuario u operador SIEMPRE visible */}
+      {view === "usuarios" ? (
+        <UsuarioForm
+          initialForm={editingId ? data.find(u => u.id === editingId) : {}}
+          onSubmit={handleSubmit}
+          loading={loading}
+          editingId={editingId}
+        />
+      ) : (
+        <OperadorForm
+          initialForm={editingId ? data.find(o => o.id === editingId) : {}}
+          onSubmit={handleSubmit}
+          loading={loading}
+          editingId={editingId}
+        />
+      )}
+
+      {/* Formulario para actualizar contraseña */}
+      {showPasswordForm && (
+        <PasswordForm
+          onSubmit={handleUpdatePassword}
+          onCancel={() => setShowPasswordForm(false)}
+          value={newPassword}
+          onChange={setNewPassword}
+        />
+      )}
+
+      {/* Tabla de usuarios u operadores */}
+      {view === "usuarios" ? (
+        <UsuarioTable
+          data={data}
+          loading={loading}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onShowPasswordForm={handleShowPasswordForm}
+          onChangeRol={handleChangeRol}
+          view={view}
+        />
+      ) : (
+        <OperadorTable
+          data={data}
+          loading={loading}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      )}
     </div>
   );
 }

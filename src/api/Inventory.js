@@ -1,6 +1,8 @@
 // src/api/inventory.js
 import { apiFetch } from './client';
 
+
+
 // USUARIOS
 export function getUsuarios() {
   return apiFetch('/usuarios');
@@ -20,11 +22,22 @@ export function updateUsuario(id, usuario) {
   });
 }
 
+
 export function deleteUsuario(id) {
   return apiFetch(`/usuarios/${id}`, {
     method: 'DELETE',
   });
 }
+
+export function updateUsuarioPassword(id, newPassword) {
+  return apiFetch(`/usuarios/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ password: newPassword }),
+  });
+}
+
+
+
 
 // OPERADORES
 export function getOperadores() {

@@ -23,10 +23,20 @@ export async function apiFetch(endpoint, options = {}) {
       throw new Error('No autorizado. Inicia sesión de nuevo.');
     }
 
-    const data = await res.json();
+    let data;
+    try {
+      data = await res.clone().json();
+    } catch (jsonError) {
+      data = await res.text();
+    }
 
     if (!res.ok) {
-      throw new Error(data.error || data.mensaje || 'Error en la solicitud');
+      // Si data es objeto, busca error/mensaje; si es texto, muestra texto
+      if (typeof data === 'object') {
+        throw new Error(data.error || data.mensaje || 'Error en la solicitud');
+      } else {
+        throw new Error(data || 'Error en la solicitud');
+      }
     }
 
     return data;
