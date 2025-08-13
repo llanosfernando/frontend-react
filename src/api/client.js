@@ -3,6 +3,7 @@ import { getToken, clearToken } from './auth';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+// Función para realizar peticiones a la API
 export async function apiFetch(endpoint, options = {}) {
   const token = getToken();
 
@@ -16,6 +17,11 @@ export async function apiFetch(endpoint, options = {}) {
   }
 
   try {
+    //para mostrar errores en la consola
+    console.log('Request URL:', `${API_URL}${endpoint}`);
+    console.log('Request Options:', options);
+
+    // Realiza la petición a la API
     const res = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
 
     if (res.status === 401 || res.status === 403) {

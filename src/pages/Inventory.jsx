@@ -67,37 +67,55 @@ export default function Inventory() {
     }
   };
   
-  // Handler para el envío del formulario (recibe los datos, no el evento)
-  const handleSubmit = async (form) => {
-    // Validación según la vista
+  // Handler para el envío del formulario de usuarios
+  const handleUsuarioSubmit = async (form) => {
+    console.log("Datos del formulario de usuarios enviados:", form);
     if (!form.nombre || form.nombre.trim() === "") {
       toast.error("El nombre es obligatorio");
       return;
     }
-    if (view === "usuarios") {
-      if (form.email !== undefined && (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email))) {
-        toast.error("El correo es obligatorio y debe ser válido");
-        return;
-      }
-    } else if (view === "operadores") {
-      if (!form.codigo || form.codigo.trim() === "") {
-        toast.error("El código es obligatorio");
+    if (form.email !== undefined && (!form.email.trim() || !/\S+@\S+\.\S+/.test(form.email))) {
+      toast.error("El correo es obligatorio y debe ser válido");
+      return;
+    }
+    if (form.password !== undefined && !editingId) {
+      if (!form.password || form.password.trim() === "") {
+        toast.error("La contraseña es obligatoria");
         return;
       }
     }
     setLoading(true);
     try {
-      if (view === "usuarios") {
-        editingId ? await updateUsuario(editingId, form) : await createUsuario(form);
-        toast.success(editingId ? "Usuario actualizado" : "Usuario creado");
-      } else {
-        editingId ? await updateOperador(editingId, form) : await createOperador(form);
-        toast.success(editingId ? "Operador actualizado" : "Operador creado");
-      }
+      editingId ? await updateUsuario(editingId, form) : await createUsuario(form);
+      toast.success(editingId ? "Usuario actualizado" : "Usuario creado");
       setEditingId(null);
       fetchData();
     } catch (err) {
-      toast.error(err.message || "Error guardando");
+      toast.error(err.message || "Error guardando usuario");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handler para el envío del formulario de operadores
+  const handleOperadorSubmit = async (form) => {
+    console.log("Datos del formulario de operadores enviados:", form);
+    if (!form.nombre || form.nombre.trim() === "") {
+      toast.error("El nombre del operador es obligatorio");
+      return;
+    }
+    if (!form.codigo || form.codigo.trim() === "") {
+      toast.error("El código del operador es obligatorio");
+      return;
+    }
+    setLoading(true);
+    try {
+      editingId ? await updateOperador(editingId, form) : await createOperador(form);
+      toast.success(editingId ? "Operador actualizado" : "Operador creado");
+      setEditingId(null);
+      fetchData();
+    } catch (err) {
+      toast.error(err.message || "Error guardando operador");
     } finally {
       setLoading(false);
     }
@@ -177,15 +195,15 @@ export default function Inventory() {
       {/* Formulario de usuario u operador SIEMPRE visible */}
       {view === "usuarios" ? (
         <UsuarioForm
-          initialForm={editingId ? data.find(u => u.id === editingId) : {}}
-          onSubmit={handleSubmit}
+          initialForm={editingId ? data.find(u => u.id === editingId) : { nombre: "", email: "", password: "", rol: "" }}
+          onSubmit={handleUsuarioSubmit}
           loading={loading}
           editingId={editingId}
         />
       ) : (
         <OperadorForm
-          initialForm={editingId ? data.find(o => o.id === editingId) : {}}
-          onSubmit={handleSubmit}
+          initialForm={editingId ? data.find(o => o.id === editingId) : { nombres: "", apellidos: "", cedula: "", cargo: "", foto: "" }}
+          onSubmit={handleOperadorSubmit}
           loading={loading}
           editingId={editingId}
         />

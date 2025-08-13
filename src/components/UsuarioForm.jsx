@@ -34,6 +34,7 @@ export default function UsuarioForm({ initialForm, onSubmit, loading: parentLoad
           ) : (
             <input
               key={key}
+              type={key === "password" ? "password" : "text"} // Agregar formato de contraseña
               placeholder={key}
               value={form[key] || ""}
               onChange={(e) => setForm({ ...form, [key]: e.target.value })}

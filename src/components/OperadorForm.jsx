@@ -5,11 +5,11 @@
 // - loading: estado de carga externo
 // - editingId: id del operador que se está editando (si aplica)
 import React from "react";
-import useUsuarioForm from "../hooks/useUsuarioForm";
+import useOperadorForm from "../hooks/useOperadorForm";
 
 export default function OperadorForm({ initialForm, onSubmit, loading: parentLoading, editingId }) {
   // Usamos el hook personalizado
-  const { form, setForm, loading, error, handleSubmit } = useUsuarioForm({ initialForm, onSubmit });
+  const { form, setForm, loading, error, handleSubmit } = useOperadorForm({ initialForm, onSubmit });
 
   return (
     <form

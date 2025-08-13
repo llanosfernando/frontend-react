@@ -1,5 +1,6 @@
 import React from "react";
 
+// Formulario para actualizar la contraseña de un usuario
 export default function PasswordForm({ onSubmit, onCancel, value, onChange }) {
   return (
     <form onSubmit={onSubmit} className="bg-white shadow p-4 rounded-lg mb-6">
