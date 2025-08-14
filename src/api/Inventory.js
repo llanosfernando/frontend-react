@@ -44,22 +44,44 @@ export function getOperadores() {
   return apiFetch('/operadores');
 }
 // Crear operador
-export function createOperador(operador) {
-  return apiFetch('/operadores', {
-    method: 'POST',
-    body: JSON.stringify(operador),
-  });
+export async function createOperador(operador) {
+  if (!operador.codigo || !operador.nombres || !operador.apellidos || !operador.cedula || !operador.cargo) {
+    throw new Error("Faltan datos obligatorios: codigo, nombres, apellidos, cedula, cargo.");
+  }
+  console.log("Datos enviados a createOperador:", operador);
+  try {
+    const response = await apiFetch('/operadores', {
+      method: 'POST',
+      body: JSON.stringify(operador),
+    });
+    console.log("Respuesta completa del backend en createOperador:", response);
+    return { ok: true, data: response };
+  } catch (error) {
+    return { ok: false, error: error.message };
+  }
 }
 // Actualizar operador
-export function updateOperador(id, operador) {
-  return apiFetch(`/operadores/${id}`, {
-    method: 'PUT',
-    body: JSON.stringify(operador),
-  });
+export async function updateOperador(codigo, operador) {
+  if (!operador.nombres || !operador.apellidos || !operador.cedula || !operador.cargo) {
+    throw new Error("Faltan datos obligatorios: nombres, apellidos, cedula, cargo.");
+  }
+  console.log("Datos enviados a updateOperador:", operador);
+  try {
+    const response = await apiFetch(`/operadores/${codigo}`, {
+      method: 'PUT',
+      body: JSON.stringify(operador),
+    });
+    console.log("Respuesta completa del backend en updateOperador:", response);
+    return { ok: true, data: response };
+  } catch (error) {
+    return { ok: false, error: error.message };
+  }
 }
 // Eliminar operador
-export function deleteOperador(id) {
-  return apiFetch(`/operadores/${id}`, {
+export function deleteOperador(codigo) {
+  console.log("Código del operador a eliminar:", codigo);
+  return apiFetch(`/operadores/${codigo}`, {
     method: 'DELETE',
   });
 }
+

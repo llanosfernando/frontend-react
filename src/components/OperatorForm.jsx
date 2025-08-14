@@ -1,20 +1,23 @@
 import React, { useState } from "react";
-import { getOperador } from "../api/operadores"; // usamos la nueva API
+import { getOperador } from "../api/reportes"; // usamos la nueva API
 
 const ConsultaOperador = () => {
   const [codigoOperador, setCodigoOperador] = useState("");
   const [datosOperador, setDatosOperador] = useState(null);
   const [error, setError] = useState("");
 
+  // Función para consultar el operador
   const consultarOperador = async () => {
     const codigo = codigoOperador.trim();
 
+    // Validar que el código no esté vacío
     if (!codigo) {
       setError("⚠️ Debes ingresar un código de operador válido.");
       setDatosOperador(null);
       return;
     }
 
+    // Consultar el operador
     try {
       const data = await getOperador(codigo);
 
@@ -26,6 +29,7 @@ const ConsultaOperador = () => {
         cargo: data.cargo,
       });
 
+    
       setError(""); // Limpia el error si todo sale bien
     } catch (error) {
       setError("❌ No se encontró el operador.");

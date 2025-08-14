@@ -10,23 +10,64 @@ import useOperadorForm from "../hooks/useOperadorForm";
 export default function OperadorForm({ initialForm, onSubmit, loading: parentLoading, editingId }) {
   // Usamos el hook personalizado
   const { form, setForm, loading, error, handleSubmit } = useOperadorForm({ initialForm, onSubmit });
+ 
 
+  // Handler para el envío del formulario
   return (
     <form
       onSubmit={handleSubmit}
       className="bg-white shadow p-4 rounded-lg mb-6 flex flex-wrap gap-4"
     >
-      {Object.keys(form)
-        .filter((key) => key !== "id")
-        .map((key) => (
-          <input
-            key={key}
-            placeholder={key}
-            value={form[key] || ""}
-            onChange={(e) => setForm({ ...form, [key]: e.target.value })}
-            className="border p-2 rounded-lg flex-1 min-w-[200px]"
-          />
-        ))}
+      <input
+        type="text"
+        placeholder="Nombres"
+        value={form.nombres || ""}
+        onChange={(e) => {
+          console.log("Valor actualizado de nombres:", e.target.value);
+          setForm({ ...form, nombres: e.target.value });
+        }}
+        className="border p-2 rounded-lg flex-1 min-w-[200px]"
+        required
+      />
+      <input
+        type="text"
+        placeholder="Apellidos"
+        value={form.apellidos || ""}
+        onChange={(e) => setForm({ ...form, apellidos: e.target.value })}
+        className="border p-2 rounded-lg flex-1 min-w-[200px]"
+        required
+      />
+      <input
+        type="text"
+        placeholder="Cédula"
+        value={form.cedula || ""}
+        onChange={(e) => setForm({ ...form, cedula: e.target.value })}
+        className="border p-2 rounded-lg flex-1 min-w-[200px]"
+        required
+      />
+      <input
+        type="text"
+        placeholder="Cargo"
+        value={form.cargo || ""}
+        onChange={(e) => setForm({ ...form, cargo: e.target.value })}
+        className="border p-2 rounded-lg flex-1 min-w-[200px]"
+        required
+      />
+      <input
+        type="text"
+        placeholder="Foto (opcional)"
+        value={form.foto || ""}
+        onChange={(e) => setForm({ ...form, foto: e.target.value })}
+        className="border p-2 rounded-lg flex-1 min-w-[200px]"
+      />
+      <input
+        type="text"
+        placeholder="Código"
+        value={form.codigo || ""}
+        onChange={(e) => setForm({ ...form, codigo: e.target.value })}
+        className="border p-2 rounded-lg flex-1 min-w-[200px]"
+        required
+      />
       <button
         type="submit"
         disabled={loading || parentLoading}

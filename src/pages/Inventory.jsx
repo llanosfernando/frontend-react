@@ -100,29 +100,33 @@ export default function Inventory() {
   // Handler para el envío del formulario de operadores
   const handleOperadorSubmit = async (form) => {
     console.log("Datos del formulario de operadores enviados:", form);
-    if (!form.nombre || form.nombre.trim() === "") {
+    if (!form.nombres || form.nombres.trim() === "") {
       toast.error("El nombre del operador es obligatorio");
-      return;
-    }
-    if (!form.codigo || form.codigo.trim() === "") {
-      toast.error("El código del operador es obligatorio");
-      return;
+      return { ok: false, error: "El nombre del operador es obligatorio" };
     }
     setLoading(true);
     try {
-      editingId ? await updateOperador(editingId, form) : await createOperador(form);
-      toast.success(editingId ? "Operador actualizado" : "Operador creado");
-      setEditingId(null);
-      fetchData();
+      const response = editingId
+        ? await updateOperador(editingId, form)
+        : await createOperador(form);
+      if (response.ok) {
+        toast.success(editingId ? "Operador actualizado" : "Operador creado");
+        setEditingId(null);
+        fetchData();
+      } else {
+        throw new Error(response.error || "Error desconocido");
+      }
+      return response;
     } catch (err) {
       toast.error(err.message || "Error guardando operador");
+      return { ok: false, error: err.message };
     } finally {
       setLoading(false);
     }
   };
 
   const handleEdit = (item) => {
-  setEditingId(item.id);
+    setEditingId(item.codigo); // Cambiado de item.id a item.codigo
   };
 
   const handleDelete = async (id) => {
@@ -179,6 +183,34 @@ export default function Inventory() {
     }
   };
 
+  // Handler para guardar operador
+  const handleSave = async (operador) => {
+    setLoading(true);
+    try {
+      await updateOperador(operador.codigo, operador);
+      toast.success("Operador actualizado correctamente");
+      fetchData();
+    } catch (err) {
+      toast.error(err.message || "Error actualizando operador");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handler para guardar usuario
+  const handleSaveUsuario = async (usuario) => {
+    setLoading(true);
+    try {
+      await updateUsuario(usuario.id, usuario);
+      toast.success("Usuario actualizado correctamente");
+      fetchData();
+    } catch (err) {
+      toast.error(err.message || "Error actualizando usuario");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Renderiza la vista actual
   return (
     <div className="p-6">
@@ -202,7 +234,7 @@ export default function Inventory() {
         />
       ) : (
         <OperadorForm
-          initialForm={editingId ? data.find(o => o.id === editingId) : { nombres: "", apellidos: "", cedula: "", cargo: "", foto: "" }}
+          initialForm={editingId ? data.find(o => o.codigo === editingId) || { nombres: "", apellidos: "", cedula: "", cargo: "", foto: "", codigo: "" } : { nombres: "", apellidos: "", cedula: "", cargo: "", foto: "", codigo: "" }}
           onSubmit={handleOperadorSubmit}
           loading={loading}
           editingId={editingId}
@@ -228,6 +260,7 @@ export default function Inventory() {
           onDelete={handleDelete}
           onShowPasswordForm={handleShowPasswordForm}
           onChangeRol={handleChangeRol}
+          onSave={handleSaveUsuario} // Pasar la función handleSaveUsuario como prop
           view={view}
         />
       ) : (
@@ -236,6 +269,7 @@ export default function Inventory() {
           loading={loading}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          onSave={handleSave} // Pasar la función handleSave como prop
         />
       )}
     </div>
